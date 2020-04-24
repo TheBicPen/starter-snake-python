@@ -117,6 +117,8 @@ def get_adjacent_in_board(board, x, y):
         coords.append({"x": x, "y": y-1})
     if y <= len(board)-1:
         coords.append({"x": x, "y": y+1})
+    print(f"adjacent tiles: {[coords]}")
+    return coords
 
 
 def pathfind(x1, y1, x2, y2):
@@ -147,7 +149,7 @@ def get_food(data, board, self_x, self_y):
             print("Found an easily-eatable food")
             path = pathfind(self_x, self_y, food["x"], food["y"])
             for step in path:
-                food_path_pts = (path.index(step) * FOOD_POINTS) // len(path)
+                food_path_pts = (path.index(step) * FOOD_POINTS) // len(path) + 1
                 board[step["x"]][step["y"]] += food_path_pts
                 print(f"Food path: ({step}), {food_path_pts}")
 
