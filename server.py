@@ -41,7 +41,7 @@ class Battlesnake(object):
         # Valid moves are "up", "down", "left", or "right".
         # TODO: Use the information in cherrypy.request.json to decide your next move.
         data = cherrypy.request.json
-        print(data)
+        print(f"Data: {data}")
         (move, shout) = choose_move.move(data)
         print(f"MOVE: {move}, SHOUT: {shout}")
         return {"move": move, "shout": shout}

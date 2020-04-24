@@ -38,6 +38,9 @@ def move(data):
         best_val = -1000
         best_move = None
         # moves_on_board = list(possible_moves)
+        print("Board:")
+        for line in board:
+            print(line)
         try:
             moves_on_board = []
             if self_x > 0:
@@ -64,7 +67,7 @@ def move(data):
             if moves_on_board != []:
                 possible_moves = moves_on_board
         except:
-            print("failed to find best move")
+            print("Failed to find best move")
                 
         print(f"Value = {val}")
         # if val < 0:
@@ -77,7 +80,6 @@ def move(data):
         #     choice = "down"
         # else:
         #     choice = "up"
-        print(board)
 
         if choice is not None:
             choice = best_move
