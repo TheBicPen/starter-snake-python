@@ -2,6 +2,7 @@ import os
 import random
 
 import cherrypy
+import choose_move
 
 """
 This is a simple Battlesnake server written in Python.
@@ -41,12 +42,10 @@ class Battlesnake(object):
         # TODO: Use the information in cherrypy.request.json to decide your next move.
         data = cherrypy.request.json
         print(data)
-        # Choose a random direction to move in
-        possible_moves = ["up", "down", "left", "right"]
-        move = random.choice(possible_moves)
+        (move, shout) = choose_move.move(data)
+        print(f"MOVE: {move}, SHOUT: {shout}")
+        return {"move": move, "shout": shout}
 
-        print(f"MOVE: {move}")
-        return {"move": move}
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
