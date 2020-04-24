@@ -16,9 +16,12 @@ def move(data):
         return (choice, shout)
     
     board = build_board(data)
+    print("Initialized empty board")
     try:
         guaranteed_impassible(data, board)
+        print("Got impassible tiles")
         get_food(data, board)
+        print("Got food tiles")
 
         self_x = data["you"]["body"][0]["x"]
         self_y = data["you"]["body"][0]["y"]
