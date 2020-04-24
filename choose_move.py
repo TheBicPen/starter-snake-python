@@ -149,7 +149,7 @@ def get_food(data, board, self_x, self_y):
             for step in path:
                 food_path_pts = (path.index(step) * FOOD_POINTS) // len(path)
                 board[step["x"]][step["y"]] += food_path_pts
-                # print(f"Food path: ({step["x"]},{step["y"]}), {food_path_pts}")
+                print(f"Food path: ({step}), {food_path_pts}")
 
 
 def get_snakes(data, board):
@@ -164,7 +164,7 @@ def get_snakes(data, board):
                 if snake["health"] > data["you"]["health"]:
                     for coord in get_adjacent_in_board(board, snake["body"][0]["x"], snake["body"][0]["y"]):
                         board[coord["x"]][coord["y"]] += HEALTHIER_ENEMY_AURA
-                        print(f"Generated healthy enemy aura on ({x},{y})")
+                        print(f"Generated healthy enemy aura on ({coord})")
             except:
                 print("Failed to generate aura around healthier enemy snake")
 
