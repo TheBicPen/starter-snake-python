@@ -6,6 +6,8 @@ def distance(x1, y1, x2, y2):
     return abs(x2-x1) + abs(y2-y1)
 
 
+FOOD_POINTS = 10
+
 def move(data):
 
     # Choose a random direction to move in
@@ -116,7 +118,7 @@ def pathfind(x1, y1, x2, y2):
 
 def get_food(data, board, self_x, self_y):
     for food in data["board"]["food"]:
-        board[food["x"]][food["y"]] += 10
+        board[food["x"]][food["y"]] += FOOD_POINTS
 
         self_dist = distance(self_x, self_y, food["x"], food["y"])
         snake_dist = []
@@ -127,8 +129,9 @@ def get_food(data, board, self_x, self_y):
                                        food["x"], food["y"]))
         if min(snake_dist) > self_dist:
             print("Found an easily-eatable food")
-            for coord in pathfind(self_x, self_y, food["x"], food["y"]):
-                board[coord["x"]][coord["y"]] += 1
+            path = pathfind(self_x, self_y, food["x"], food["y"])
+            for step in path:
+                board[step["x"]][step["y"]] += (path.index(step) * FOOD_POINTS) // len(path)
 
 
 def guaranteed_impassible(data, board):
