@@ -59,7 +59,7 @@ def move(data):
                     best_val = board[self_x][self_y-1]
                     best_move = "up"
             if self_y <= len(board)-1:
-                moves_on_board.remove("down")
+                moves_on_board.append("down")
                 if board[self_x][self_y+1] > best_val:
                     best_val = board[self_x][self_y+1]
                     best_move = "down"
@@ -69,7 +69,7 @@ def move(data):
         except:
             print("Failed to find best move")
                 
-        print(f"Value = {val}")
+        print(f"Value = {best_val}")
         # if val < 0:
         #     shout = "oh no"
         # if board[self_x-1][self_y] == val:
@@ -97,7 +97,7 @@ def get_food(data, board):
     
 
 def guaranteed_impassible(data, board):
-    for snake in data["snakes"]:
+    for snake in data["board"]["snakes"]:
         for coords in snake["body"][1:]:
             board[coords["x"]][coords["y"]] -= 20
     
