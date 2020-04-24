@@ -18,14 +18,23 @@ def move(data):
     board = build_board(data)
     print("Initialized empty board")
     try:
-        guaranteed_impassible(data, board)
-        print("Got impassible tiles")
-        get_food(data, board)
-        print("Got food tiles")
+        try:
+            guaranteed_impassible(data, board)
+            print("Got impassible tiles")
+        except:
+            print("Failed to get impassible tiles")
+        try:
+            get_food(data, board)
+            print("Got food tiles")
+        except:
+            print("Failed to get food tiles")
 
-        self_x = data["you"]["body"][0]["x"]
-        self_y = data["you"]["body"][0]["y"]
-
+        try:
+            self_x = data["you"]["body"][0]["x"]
+            self_y = data["you"]["body"][0]["y"]
+            print(f"Head pos: ({self_x}, {self_y})")
+        except:
+            print("failed to get own head position")
         best_val = -1000
         best_move = None
         # moves_on_board = list(possible_moves)
