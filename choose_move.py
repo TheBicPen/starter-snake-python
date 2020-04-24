@@ -75,7 +75,7 @@ def move(data):
             if self_y <= len(board)-1:
                 moves_on_board.append("down")
                 val = board[self_x][self_y+1]
-                print("Down val: {val}")
+                print(f"Down val: {val}")
                 if val > best_val:
                     best_val = val
                     best_move = "down"
@@ -147,7 +147,9 @@ def get_food(data, board, self_x, self_y):
             print("Found an easily-eatable food")
             path = pathfind(self_x, self_y, food["x"], food["y"])
             for step in path:
-                board[step["x"]][step["y"]] += (path.index(step) * FOOD_POINTS) // len(path)
+                food_path_pts = (path.index(step) * FOOD_POINTS) // len(path)
+                board[step["x"]][step["y"]] += food_path_pts
+                print(f"Food path: ({step["x"]},{step["y"]}), {food_path_pts}")
 
 
 def get_snakes(data, board):
@@ -162,6 +164,7 @@ def get_snakes(data, board):
                 if snake["health"] > data["you"]["health"]:
                     for coord in get_adjacent_in_board(board, snake["body"][0]["x"], snake["body"][0]["y"]):
                         board[coord["x"]][coord["y"]] += HEALTHIER_ENEMY_AURA
+                        print(f"Generated healthy enemy aura on ({x},{y})")
             except:
                 print("Failed to generate aura around healthier enemy snake")
 
