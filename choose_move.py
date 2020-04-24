@@ -34,34 +34,42 @@ def move(data):
             self_y = data["you"]["body"][0]["y"]
             print(f"Head pos: ({self_x}, {self_y})")
         except:
-            print("failed to get own head position")
+            print("Failed to get own head position")
         best_val = -1000
         best_move = None
         # moves_on_board = list(possible_moves)
         print("Board:")
         for line in board:
-            print(line)
+            print([str(x).ljust(3) for x in line])
         try:
             moves_on_board = []
             if self_x > 0:
                 moves_on_board.append("left")
-                if board[self_x-1][self_y] > best_val:
-                    best_val = board[self_x-1][self_y]
+                val = board[self_x-1][self_y]
+                print(f"Left val: {val}")
+                if val > best_val:
+                    best_val = val
                     best_move = "left"
             if self_x < len(board[0]-1):
                 moves_on_board.append("right")
-                if board[self_x+1][self_y] > best_val:
-                    best_val = board[self_x+1][self_y]
+                val = board[self_x+1][self_y]
+                print(f"Right val: {val}")
+                if val > best_val:
+                    best_val = val
                     best_move = "right"
             if self_y > 0:
                 moves_on_board.append("up")
-                if board[self_x][self_y-1] > best_val:
-                    best_val = board[self_x][self_y-1]
+                val=board[self_x][self_y-1]
+                print(f"Up val: {val}")
+                if val > best_val:
+                    best_val = val
                     best_move = "up"
             if self_y <= len(board)-1:
                 moves_on_board.append("down")
-                if board[self_x][self_y+1] > best_val:
-                    best_val = board[self_x][self_y+1]
+                val = board[self_x][self_y+1]
+                print("Down val: {val}")
+                if val > best_val:
+                    best_val = val
                     best_move = "down"
             print(f"Possible moves: {[possible_moves]}")
             if moves_on_board != []:
