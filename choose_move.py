@@ -15,13 +15,13 @@ def move(data):
     if data is None:
         return (choice, shout)
     
+    board = build_board(data)
     try:
         guaranteed_impassible(data, board)
         get_food(data, board)
 
         self_x = data["you"]["body"][0]["x"]
         self_y = data["you"]["body"][0]["y"]
-        board = build_board(data)
 
         best_val = -1000
         best_move = None
@@ -65,6 +65,9 @@ def move(data):
         # else:
         #     choice = "up"
         print(board)
+
+        if choice is not None:
+            choice = best_move
 
     except:
         shout = "Failed to execute main move selection. Choosing randomly."
