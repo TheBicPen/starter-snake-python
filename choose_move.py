@@ -161,7 +161,7 @@ def get_snakes(data, board):
 
             # generate aura
             try:
-                if snake["health"] > data["you"]["health"]:
+                if snake["health"] >= data["you"]["health"]:
                     for coord in get_adjacent_in_board(board, snake["body"][0]["x"], snake["body"][0]["y"]):
                         board[coord["x"]][coord["y"]] += HEALTHIER_ENEMY_AURA
                         print(f"Generated healthy enemy aura on ({coord})")
