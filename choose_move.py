@@ -110,26 +110,26 @@ def move(data):
 def get_adjacent_in_board(board, x, y):
     coords = []
     if x > 0:
-        coords.append({"x":x-1,"y":y})
+        coords.append({"x": x-1, "y": y})
     if x < len(board[0])-1:
-        coords.append({"x":x+1,"y":y})
+        coords.append({"x": x+1, "y": y})
     if y > 0:
-        coords.append({"x":x,"y":y-1})
+        coords.append({"x": x, "y": y-1})
     if y <= len(board)-1:
-        coords.append({"x":x,"y":y+1})
-                
-def pathfind(x1, y1, x2, y2):
-    x_min = min(x1,x2)
-    x_max = max(x1,x2)
-    y_min = min(y1,y2)
-    y_max = max(y1,y2)
-    coords = []
-    for y in range(y_min+1,y_max+1):
-        coords.append({"x": x1, "y":y})
-    for x in range(x_min+1,x_max+1):
-        coords.append({"x": x, "y":y2})
-    return coords
+        coords.append({"x": x, "y": y+1})
 
+
+def pathfind(x1, y1, x2, y2):
+    x_min = min(x1, x2)
+    x_max = max(x1, x2)
+    y_min = min(y1, y2)
+    y_max = max(y1, y2)
+    coords = []
+    for y in range(y_min+1, y_max+1):
+        coords.append({"x": x1, "y": y})
+    for x in range(x_min+1, x_max+1):
+        coords.append({"x": x, "y": y2})
+    return coords
 
 
 def get_food(data, board, self_x, self_y):
@@ -149,7 +149,7 @@ def get_food(data, board, self_x, self_y):
             for step in path:
                 food_path_pts = (path.index(step) * FOOD_POINTS) // len(path)
                 board[step["x"]][step["y"]] += food_path_pts
-                print(f"Food path: ({step["x"]},{step["y"]}), {food_path_pts}")
+                # print(f"Food path: ({step["x"]},{step["y"]}), {food_path_pts}")
 
 
 def get_snakes(data, board):
@@ -170,8 +170,6 @@ def get_snakes(data, board):
 
         for coords in snake["body"][1:]:
             board[coords["x"]][coords["y"]] += points
-        
-
 
 
 def build_board(data):
