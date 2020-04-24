@@ -28,13 +28,6 @@ def move(data):
             print("Got food tiles")
         except:
             print("Failed to get food tiles")
-
-        try:
-            self_x = data["you"]["body"][0]["x"]
-            self_y = data["you"]["body"][0]["y"]
-            print(f"Head pos: ({self_x}, {self_y})")
-        except:
-            print("Failed to get own head position")
         best_val = -1000
         best_move = None
         # moves_on_board = list(possible_moves)
@@ -42,7 +35,11 @@ def move(data):
         for line in board:
             print([str(x).ljust(3) for x in line])
         try:
+            self_x = data["you"]["body"][0]["x"]
+            self_y = data["you"]["body"][0]["y"]
+            print(f"Head pos: ({self_x}, {self_y})")
             moves_on_board = []
+
             if self_x > 0:
                 moves_on_board.append("left")
                 val = board[self_x-1][self_y]
@@ -50,7 +47,7 @@ def move(data):
                 if val > best_val:
                     best_val = val
                     best_move = "left"
-            if self_x < len(board[0]-1):
+            if self_x < len(board[0])-1:
                 moves_on_board.append("right")
                 val = board[self_x+1][self_y]
                 print(f"Right val: {val}")
