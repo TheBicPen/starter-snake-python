@@ -7,6 +7,11 @@ def distance(x1, y1, x2, y2):
 
 
 FOOD_POINTS = 10
+WALL_POINTS = -10000
+ENEMY_BODY = -1000
+SELF_BODY = -9000
+HEALTHIER_ENEMY_AURA = -20
+
 
 def move(data):
 
@@ -28,7 +33,7 @@ def move(data):
         print("Failed to get self position")
     try:
         try:
-            guaranteed_impassible(data, board)
+            get_snakes(data, board)
             print("Got impassible tiles")
         except:
             print("Failed to get impassible tiles")
@@ -37,7 +42,7 @@ def move(data):
             print("Got food tiles")
         except:
             print("Failed to get food tiles")
-        best_val = -10000
+        best_val = WALL_POINTS
         best_move = None
         # moves_on_board = list(possible_moves)
         print("Board:")
@@ -102,6 +107,17 @@ def move(data):
         return (choice, shout)
 
 
+def get_adjacent_in_board(board, x, y):
+    coords = []
+    if x > 0:
+        coords.append({"x":x-1,"y":y})
+    if x < len(board[0])-1:
+        coords.append({"x":x+1,"y":y})
+    if y > 0:
+        coords.append({"x":x,"y":y-1})
+    if y <= len(board)-1:
+        coords.append({"x":x,"y":y+1})
+                
 def pathfind(x1, y1, x2, y2):
     x_min = min(x1,x2)
     x_max = max(x1,x2)
@@ -134,10 +150,25 @@ def get_food(data, board, self_x, self_y):
                 board[step["x"]][step["y"]] += (path.index(step) * FOOD_POINTS) // len(path)
 
 
-def guaranteed_impassible(data, board):
+def get_snakes(data, board):
     for snake in data["board"]["snakes"]:
+        if snake["id"] == data["you"]["id"]:
+            points = SELF_BODY
+        else:
+            points = ENEMY_BODY
+
+            # generate aura
+            try:
+                if snake["health"] > data["you"]["health"]:
+                    for coord in get_adjacent_in_board(board, snake["body"][0]["x"], snake["body"][0]["y"]):
+                        board[coord["x"]][coord["y"]] += HEALTHIER_ENEMY_AURA
+            except:
+                print("Failed to generate aura around healthier enemy snake")
+
         for coords in snake["body"][1:]:
-            board[coords["x"]][coords["y"]] -= 100
+            board[coords["x"]][coords["y"]] += points
+        
+
 
 
 def build_board(data):
