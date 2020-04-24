@@ -170,7 +170,7 @@ def get_snakes(data, board):
             except:
                 print("Failed to generate aura around healthier enemy snake")
 
-        for coords in snake["body"][1:]:
+        for coords in snake["body"]:
             board[coords["x"]][coords["y"]] += points
 
 
