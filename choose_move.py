@@ -51,6 +51,7 @@ def move(data):
                 if board[self_x][self_y+1] > best_val:
                     best_val = board[self_x][self_y+1]
                     best_move = "down"
+            print(f"Possible moves: {[possible_moves]}")
             if moves_on_board != []:
                 possible_moves = moves_on_board
         except:
