@@ -2,11 +2,12 @@
 import random
 
 
-def distance(x1,y1,x2,y2):
+def distance(x1, y1, x2, y2):
     return abs(x2-x1) + abs(y2-y1)
 
+
 def move(data):
-        
+
     # Choose a random direction to move in
     possible_moves = ["up", "down", "left", "right"]
     choice = random.choice(possible_moves)
@@ -14,7 +15,7 @@ def move(data):
 
     if data is None:
         return (choice, shout)
-    
+
     board = build_board(data)
     print("Initialized empty board")
     try:
@@ -28,12 +29,12 @@ def move(data):
             print("Got food tiles")
         except:
             print("Failed to get food tiles")
-        best_val = -1000
+        best_val = -10000
         best_move = None
         # moves_on_board = list(possible_moves)
         print("Board:")
         for line in board:
-            print([str(x).ljust(3) for x in line])
+            print([str(x).ljust(2).rjust(4) for x in line])
         try:
             self_x = data["you"]["body"][0]["x"]
             self_y = data["you"]["body"][0]["y"]
@@ -56,7 +57,7 @@ def move(data):
                     best_move = "right"
             if self_y > 0:
                 moves_on_board.append("up")
-                val=board[self_x][self_y-1]
+                val = board[self_x][self_y-1]
                 print(f"Up val: {val}")
                 if val > best_val:
                     best_val = val
@@ -73,7 +74,7 @@ def move(data):
                 possible_moves = moves_on_board
         except:
             print("Failed to find best move")
-                
+
         print(f"Value = {best_val}")
         # if val < 0:
         #     shout = "oh no"
@@ -96,17 +97,42 @@ def move(data):
         return (choice, shout)
 
 
-def get_food(data, board):
+def pathfind(x1, y1, x2, y2):
+    x_min = min(x1,x2)
+    x_max = max(x1,x2)
+    y_min = min(y1,y2)
+    y_max = max(y1,y2)
+    coords = []
+    for y in range(y_min+1,y_max+1):
+        coords.append({"x": x1, "y":y})
+    for x in range(x_min+1,x_max+1):
+        coords.append({"x": x, "y":y2})
+    return coords
+
+
+
+def get_food(data, board, self_x, self_y):
     for food in data["board"]["food"]:
-        board[food["x"]][food["y"]] += 5
-    
+        board[food["x"]][food["y"]] += 10
+
+        self_dist = distance(self_x, self_y, food["x"], food["y"])
+        snake_dist = []
+        for snake in data["board"]["snakes"]:
+            if snake["id"] == data["you"]["id"]:
+                continue
+            snake_dist.append(distance(snake["body"][0]["x"], snake["body"][0]["y"],
+                                       food["x"], food["y"]))
+        if min(snake_dist) > self_dist:
+            print("Found an easily-eatable food")
+            for coord in pathfind(self_x, self_y, food["x"], food["y"]):
+                board[coord["x"]][coord["y"]] += 1
+
 
 def guaranteed_impassible(data, board):
     for snake in data["board"]["snakes"]:
         for coords in snake["body"][1:]:
-            board[coords["x"]][coords["y"]] -= 20
-    
-    
+            board[coords["x"]][coords["y"]] -= 100
+
 
 def build_board(data):
     try:
@@ -115,4 +141,4 @@ def build_board(data):
     except:
         shout = "Failed to build board. Assuming 11*11"
         print(shout)
-        return [list([0,0,0,0,0,0,0,0,0,0,0]) for _ in range(11)]
+        return [list([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) for _ in range(11)]
