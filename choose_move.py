@@ -59,7 +59,6 @@ def move(data):
         best_move = None
         # moves_on_board = list(possible_moves)
         try:
-            print("Printing Board")
             print_board(board, 5)
         except:
             print("Failed to print board (??)")
@@ -95,13 +94,13 @@ def move(data):
                 if val > best_val:
                     best_val = val
                     best_move = "down"
-            print(f"Possible moves: {[possible_moves]}")
+            # print(f"Possible moves: {[possible_moves]}")
             if moves_on_board != []:
                 possible_moves = moves_on_board
         except:
             print("Failed to find best move")
 
-        print(f"Value = {best_val}")
+        # print(f"Value = {best_val}")
         if val < -500:
             shout = "GG!"
         if choice is not None:
@@ -194,7 +193,7 @@ def get_available_move_bonus(data, board, self_x, self_y):
     for node in nodes:
         moves = dfs(board, -10, 50, node["x"], node["y"])
         node["sum"] = moves
-        print(f"Node {node} has a path of {moves} moves.")
+        # print(f"Node {node} has a path of {moves} moves.")
         if moves > max_moves:
             max_moves = moves
         if moves < min_moves:
