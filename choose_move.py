@@ -14,6 +14,8 @@ HEALTHIER_ENEMY_AURA = -20
 AVAILABLE_MOVE_MAX_POINTS = 20
 AVAILABLE_MOVE_MIN_POINTS = -3
 
+DEBUG = False
+
 
 def move(data):
 
@@ -58,10 +60,11 @@ def move(data):
         best_val = WALL_POINTS
         best_move = None
         # moves_on_board = list(possible_moves)
-        try:
-            print_board(board, 5)
-        except:
-            print("Failed to print board (??)")
+        if DEBUG:
+            try:
+                print_board(board, 5)
+            except:
+                print("Failed to print board (??)")
 
         try:
             moves_on_board = []
@@ -101,7 +104,7 @@ def move(data):
             print("Failed to find best move")
 
         # print(f"Value = {best_val}")
-        if val < -500:
+        if best_val < -500:
             shout = "GG!"
         if choice is not None:
             choice = best_move
@@ -158,7 +161,8 @@ def get_food(data, board, self_x, self_y):
                 food_path_pts = (path.index(step) *
                                  FOOD_POINTS) // len(path) + 1
                 board[step["x"]][step["y"]] += food_path_pts
-                print(f"Food path: ({step}), {food_path_pts}")
+                if DEBUG:
+                    print(f"Food path: ({step}), {food_path_pts}")
 
 
 def get_snakes(data, board):
@@ -205,7 +209,8 @@ def get_available_move_bonus(data, board, self_x, self_y):
         else:
             move_points = AVAILABLE_MOVE_MIN_POINTS + (node["sum"] - min_moves) // (max_moves - min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
-        print(f"Assigning {move_points} move points to node {node}")
+        if DEBUG:
+            print(f"Assigning {move_points} move points to node {node}")
 
 def dfs(board, threshold, max_iterations, x, y):
 
