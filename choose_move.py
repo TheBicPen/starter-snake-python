@@ -57,7 +57,7 @@ def move(data):
         # moves_on_board = list(possible_moves)
         print("Board:")
         for line in board:
-            print([str(x).ljust(2).rjust(5) for x in line])
+            print([str(x).ljust(3).rjust(5) for x in line])
         try:
             moves_on_board = []
 
@@ -96,24 +96,15 @@ def move(data):
             print("Failed to find best move")
 
         print(f"Value = {best_val}")
-        # if val < 0:
-        #     shout = "oh no"
-        # if board[self_x-1][self_y] == val:
-        #     choice = "left"
-        # elif board[self_x+1][self_y] == val:
-        #     choice = "right"
-        # elif board[self_x][self_y-1] == val:
-        #     choice = "down"
-        # else:
-        #     choice = "up"
-
+        if val < -500:
+            shout = "GG!"
         if choice is not None:
             choice = best_move
 
     except:
         shout = "Failed to execute main move selection. Choosing randomly."
     finally:
-        print(shout)
+        # print(shout)
         return (choice, shout)
 
 
@@ -193,11 +184,12 @@ def get_available_move_bonus(data, board, self_x, self_y):
     for node in nodes:
         moves = dfs(board, -10, 50, node["x"], node["y"])
         node["sum"] = moves
+        print(f"Node {node} has a path of {moves} moves.")
         if moves > max_moves:
             max_moves = moves
         if moves < min_moves:
             min_moves = moves
-    print(f"Max moves: {max_moves}, Min moves: {min_moves}")    
+    # print(f"Max moves: {max_moves}, Min moves: {min_moves}")    
     for node in nodes:
         move_points = AVAILABLE_MOVE_MIN_POINTS + (moves - min_moves) // (max_moves - min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
