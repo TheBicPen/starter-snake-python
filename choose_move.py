@@ -47,7 +47,7 @@ def move(data):
         # moves_on_board = list(possible_moves)
         print("Board:")
         for line in board:
-            print([str(x).ljust(2).rjust(4) for x in line])
+            print([str(x).ljust(2).rjust(5) for x in line])
         try:
             moves_on_board = []
 
@@ -117,7 +117,7 @@ def get_adjacent_in_board(board, x, y):
         coords.append({"x": x, "y": y-1})
     if y <= len(board)-1:
         coords.append({"x": x, "y": y+1})
-    print(f"adjacent tiles: {[coords]}")
+    # print(f"adjacent tiles: {coords}")
     return coords
 
 
@@ -174,6 +174,39 @@ def get_snakes(data, board):
             board[coords["x"]][coords["y"]] += points
 
 
+
+def dfs(board, threshold, max_iterations, x,y):
+
+    original_nodes = get_adjacent_in_board(board, x, y)
+
+    for node in original_nodes:
+        # visitable = [list(board[i]) for i, _ in enumerate(board)]
+        visitable = []
+        for row in board:
+            visitable.append([True if item > threshold else False for item in row])
+        # print(visitable)
+        node["sum"] = 0
+        if not visitable[node["x"]][node["y"]]:
+            continue
+        to_visit=[{"x":node["x"], "y":node["y"]}]
+        
+        for i in range(max_iterations):
+            print(i)
+            for row in visitable:
+                print(["x" if val else "." for val in row])
+            if len(to_visit) < 1:
+                break
+            coords = get_adjacent_in_board(visitable, to_visit[0]["x"], to_visit[0]["y"])
+            to_visit.pop(0)
+            for coord in coords:
+                if visitable[coord["x"]][coord["y"]]:
+                    visitable[coord["x"]][coord["y"]] = False
+                    node["sum"] += 1
+                    to_visit.append(coord)
+                
+    return original_nodes
+    
+
 def build_board(data):
     try:
         x = [0 for _ in range(data["board"]["width"])]
@@ -182,3 +215,16 @@ def build_board(data):
         shout = "Failed to build board. Assuming 11*11"
         print(shout)
         return [list([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) for _ in range(11)]
+
+if __name__ == "__main__":
+    dfs([[0, -1, 0, 0, 0, 0, 0, 0, 10, 0, 0],
+[0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, -1, 0, 0, 0, 0, 0, 0, 10, 0, 0],
+[0, -1, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
+[-1, -1, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, -9000, 0, 0, -1000, -1000, -1000, -1000, -1000],
+[0, 0, 0, -9000, 0, -1000, -1000, 0, 0, -1000, -1000],
+[0, 0, 0, -9000, 10, -1000, 0, 0, 0, -1000, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], -1, 10, 1, 0)
