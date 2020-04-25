@@ -59,7 +59,7 @@ def move(data):
         best_val = WALL_POINTS
         best_move = None
         # moves_on_board = list(possible_moves)
-        print(board, 5)
+        print_board(board, 5)
 
         try:
             moves_on_board = []
