@@ -26,7 +26,10 @@ def move(data):
         return (choice, shout)
 
     board = build_board(data)
+    # Notice that the board is actually set up to be indexed as board[y][x], not board[x][y]
+    # We just ignore that and consistenly use [x][y]
     print("Initialized empty board")
+
     try:
         self_x = data["you"]["body"][0]["x"]
         self_y = data["you"]["body"][0]["y"]
@@ -49,15 +52,15 @@ def move(data):
         try:
             get_available_move_bonus(data, board, self_x, self_y)
             print("Got available move bonus")
-        except:
+        except Exception as e:
             print("Failed to get available move bonus")
+            print(e.with_traceback())
 
         best_val = WALL_POINTS
         best_move = None
         # moves_on_board = list(possible_moves)
-        print("Board:")
-        for line in board:
-            print([str(x).ljust(3).rjust(5) for x in line])
+        print(board, 5)
+
         try:
             moves_on_board = []
 
@@ -175,6 +178,10 @@ def get_snakes(data, board):
         for coords in snake["body"]:
             board[coords["x"]][coords["y"]] += points
 
+def print_board(board, cell_width):
+    print("Board:")
+    for line in board:
+        print([str(x).ljust((cell_width + 1) // 2).rjust(cell_width) for x in line])
 
 def get_available_move_bonus(data, board, self_x, self_y):
     nodes = get_adjacent_in_board(board, self_x, self_y)
@@ -191,7 +198,10 @@ def get_available_move_bonus(data, board, self_x, self_y):
             min_moves = moves
     # print(f"Max moves: {max_moves}, Min moves: {min_moves}")    
     for node in nodes:
-        move_points = AVAILABLE_MOVE_MIN_POINTS + (moves - min_moves) // (max_moves - min_moves) * MOVE_POINT_DIFFERENCE
+        if min_moves == max_moves:
+            move_points = 0
+        else:
+            move_points = AVAILABLE_MOVE_MIN_POINTS + (moves - min_moves) // (max_moves - min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
         print(f"Assigning {move_points} move points to node {node}")
 
@@ -246,3 +256,9 @@ def build_board(data):
 # [0, 0, 0, -9000, 0, -1000, -1000, 0, 0, -1000, -1000],
 # [0, 0, 0, -9000, 10, -1000, 0, 0, 0, -1000, 0],
 # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], -1, 20, 0, 2))
+
+    # board = build_board({"board":{"width":5, "height":5}})
+    # for i in range(5):
+    #     for j in range(5):
+    #         board[i][j] = 10*i+j
+    # print_board(board, 2)
