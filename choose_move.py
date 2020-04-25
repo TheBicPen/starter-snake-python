@@ -149,7 +149,8 @@ def get_food(data, board, self_x, self_y):
             print("Found an easily-eatable food")
             path = pathfind(self_x, self_y, food["x"], food["y"])
             for step in path:
-                food_path_pts = (path.index(step) * FOOD_POINTS) // len(path) + 1
+                food_path_pts = (path.index(step) *
+                                 FOOD_POINTS) // len(path) + 1
                 board[step["x"]][step["y"]] += food_path_pts
                 print(f"Food path: ({step}), {food_path_pts}")
 
@@ -174,37 +175,34 @@ def get_snakes(data, board):
             board[coords["x"]][coords["y"]] += points
 
 
+def dfs(board, threshold, max_iterations, x, y):
 
-def dfs(board, threshold, max_iterations, x,y):
+    node = {"x":x, "y":y, "sum":0}
+    visitable = []
+    for row in board:
+        visitable.append(
+            [True if item > threshold else False for item in row])
+    # print(visitable)
+    if not visitable[x][y]:
+        return 0
+    to_visit = [node]
 
-    original_nodes = get_adjacent_in_board(board, x, y)
+    for i in range(max_iterations):
+        # print(i)
+        # for row in visitable:
+        #     print(["x" if val else "." for val in row])
+        if len(to_visit) < 1:
+            break
+        coords = get_adjacent_in_board(
+            visitable, to_visit[0]["x"], to_visit[0]["y"])
+        to_visit.pop(0)
+        for coord in coords:
+            if visitable[coord["x"]][coord["y"]]:
+                visitable[coord["x"]][coord["y"]] = False
+                node["sum"] += 1
+                to_visit.append(coord)
 
-    for node in original_nodes:
-        # visitable = [list(board[i]) for i, _ in enumerate(board)]
-        visitable = []
-        for row in board:
-            visitable.append([True if item > threshold else False for item in row])
-        # print(visitable)
-        node["sum"] = 0
-        if not visitable[node["x"]][node["y"]]:
-            continue
-        to_visit=[{"x":node["x"], "y":node["y"]}]
-        
-        for i in range(max_iterations):
-            print(i)
-            for row in visitable:
-                print(["x" if val else "." for val in row])
-            if len(to_visit) < 1:
-                break
-            coords = get_adjacent_in_board(visitable, to_visit[0]["x"], to_visit[0]["y"])
-            to_visit.pop(0)
-            for coord in coords:
-                if visitable[coord["x"]][coord["y"]]:
-                    visitable[coord["x"]][coord["y"]] = False
-                    node["sum"] += 1
-                    to_visit.append(coord)
-                
-    return original_nodes
+    return node["sum"]
     
 
 def build_board(data):
