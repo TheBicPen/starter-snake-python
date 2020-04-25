@@ -52,14 +52,14 @@ def move(data):
         try:
             get_available_move_bonus(data, board, self_x, self_y)
             print("Got available move bonus")
-        except Exception as e:
+        except:
             print("Failed to get available move bonus")
-            print(e.with_traceback())
 
         best_val = WALL_POINTS
         best_move = None
         # moves_on_board = list(possible_moves)
         try:
+            print("Printing Board")
             print_board(board, 5)
         except:
             print("Failed to print board (??)")
