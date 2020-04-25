@@ -11,6 +11,8 @@ WALL_POINTS = -10000
 ENEMY_BODY = -1000
 SELF_BODY = -9000
 HEALTHIER_ENEMY_AURA = -20
+AVAILABLE_MOVE_MAX_POINTS = 20
+AVAILABLE_MOVE_MIN_POINTS = 0
 
 
 def move(data):
@@ -37,11 +39,19 @@ def move(data):
             print("Got impassible tiles")
         except:
             print("Failed to get impassible tiles")
+
         try:
             get_food(data, board, self_x, self_y)
             print("Got food tiles")
         except:
             print("Failed to get food tiles")
+
+        try:
+            get_available_move_bonus(data, board, self_x, self_y)
+            print("Got available move bonus")
+        except:
+            print("Failed to get available move bonus")
+
         best_val = WALL_POINTS
         best_move = None
         # moves_on_board = list(possible_moves)
@@ -175,6 +185,24 @@ def get_snakes(data, board):
             board[coords["x"]][coords["y"]] += points
 
 
+def get_available_move_bonus(data, board, self_x, self_y):
+    nodes = get_adjacent_in_board(board, self_x, self_y)
+    max_moves = -100
+    min_moves = 10000
+    MOVE_POINT_DIFFERENCE = AVAILABLE_MOVE_MAX_POINTS - AVAILABLE_MOVE_MIN_POINTS
+    for node in nodes:
+        moves = dfs(board, -10, 50, node["x"], node["y"])
+        node["sum"] = moves
+        if moves > max_moves:
+            max_moves = moves
+        if moves < min_moves:
+            min_moves = moves
+    print(f"Max moves: {max_moves}, Min moves: {min_moves}")    
+    for node in nodes:
+        move_points = AVAILABLE_MOVE_MIN_POINTS + (moves - min_moves) // (max_moves - min_moves) * MOVE_POINT_DIFFERENCE
+        board[node["x"]][node["y"]] += move_points
+        print(f"Assigning {move_points} move points to node {node}")
+
 def dfs(board, threshold, max_iterations, x, y):
 
     node = {"x":x, "y":y, "sum":0}
@@ -214,15 +242,15 @@ def build_board(data):
         print(shout)
         return [list([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) for _ in range(11)]
 
-if __name__ == "__main__":
-    dfs([[0, -1, 0, 0, 0, 0, 0, 0, 10, 0, 0],
-[0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, -1, 0, 0, 0, 0, 0, 0, 10, 0, 0],
-[0, -1, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
-[-1, -1, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, -9000, 0, 0, -1000, -1000, -1000, -1000, -1000],
-[0, 0, 0, -9000, 0, -1000, -1000, 0, 0, -1000, -1000],
-[0, 0, 0, -9000, 10, -1000, 0, 0, 0, -1000, 0],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], -1, 10, 1, 0)
+# if __name__ == "__main__":
+#     print(dfs([[0, -1, 0, 0, 0, 0, 0, 0, 10, 0, 0],
+# [0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+# [0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+# [0, -1, 0, 0, 0, 0, 0, 0, 10, 0, 0],
+# [0, -1, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
+# [-1, -1, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
+# [0, 0, 0, -9000, 0, 0, 0, 0, 0, 0, 0],
+# [0, 0, 0, -9000, 0, 0, -1000, -1000, -1000, -1000, -1000],
+# [0, 0, 0, -9000, 0, -1000, -1000, 0, 0, -1000, -1000],
+# [0, 0, 0, -9000, 10, -1000, 0, 0, 0, -1000, 0],
+# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], -1, 20, 0, 2))
