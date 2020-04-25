@@ -31,7 +31,7 @@ class Battlesnake(object):
         data = cherrypy.request.json
         print("START")
         return {"color": "#{}{}{}".format(random.randrange(0,100), random.randrange(0,100),
-                random.randrange(0,100)), "headType": "smile", "tailType": "bolt"}
+                random.randrange(0,100)), "headType": "shac-workout", "tailType": "shac-weight"}
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
