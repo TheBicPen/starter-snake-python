@@ -203,7 +203,7 @@ def get_available_move_bonus(data, board, self_x, self_y):
         if min_moves == max_moves:
             move_points = 0
         else:
-            move_points = AVAILABLE_MOVE_MIN_POINTS + (moves - min_moves) // (max_moves - min_moves) * MOVE_POINT_DIFFERENCE
+            move_points = AVAILABLE_MOVE_MIN_POINTS + (node["sum"] - min_moves) // (max_moves - min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
         print(f"Assigning {move_points} move points to node {node}")
 
