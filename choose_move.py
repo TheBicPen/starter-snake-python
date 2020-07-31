@@ -11,9 +11,10 @@ FOOD_POINTS = 10
 WALL_POINTS = -10**6
 ENEMY_BODY = -10**4
 SELF_BODY = -9*10**5
-HEALTHIER_ENEMY_AURA = -20
+HEALTHIER_ENEMY_AURA = -30
 AVAILABLE_MOVE_MAX_POINTS = 20
-AVAILABLE_MOVE_MIN_POINTS = -3
+AVAILABLE_MOVE_MIN_POINTS = -5
+BFS_DEPTH = 80
 
 DEBUG = False
 DUMP_ON_ERROR = False
@@ -222,9 +223,9 @@ def get_available_move_bonus(data, board, self_node):
     for node_and_move_bonus in node_move_bonuses:
         node=node_and_move_bonus["node"]
         try:
-            moves = count_nodes(board, -10, 50, node)
+            moves = count_nodes(board, -10, BFS_DEPTH, node)
         except Exception as e:
-            handle_error("dfs error", e, [board, -10, 50, node])
+            handle_error("dfs error", e, [board, -10, BFS_DEPTH, node])
             moves = -100
         node_and_move_bonus["move_bonus"] = moves
         # if DEBUG:
