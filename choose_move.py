@@ -229,7 +229,7 @@ def get_available_move_bonus(data, board, self_node):
             max_moves = moves
         if moves < min_moves:
             min_moves = moves
-    # print(f"Max moves: {max_moves}, Min moves: {min_moves}")
+    print(f"Max moves: {max_moves}, Min moves: {min_moves}")
     for node in nodes:
         if min_moves == max_moves:
             move_points = 0
