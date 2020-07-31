@@ -3,8 +3,8 @@ import random
 import json
 
 
-def distance(x1, y1, x2, y2):
-    return abs(x2-x1) + abs(y2-y1)
+def distance(node1, node2):
+    return abs(node2["x"]-node1["x"]) + abs(node2["y"]-node1["y"])
 
 
 FOOD_POINTS = 10
@@ -16,6 +16,15 @@ AVAILABLE_MOVE_MAX_POINTS = 20
 AVAILABLE_MOVE_MIN_POINTS = -3
 
 DEBUG = False
+DUMP_ON_ERROR = True
+
+
+def handle_error(error_name: str, exception: Exception, data=None):
+    print("An exception occured: ", error_name, exception)
+    if DEBUG:
+        print(exception.with_traceback())
+    if DUMP_ON_ERROR:
+        print("Object dump:", json.dumps(data))
 
 
 def move(data):
@@ -34,29 +43,30 @@ def move(data):
     print("Initialized empty board")
 
     try:
-        self_x = data["you"]["body"][0]["x"]
-        self_y = data["you"]["body"][0]["y"]
+        head = data["you"]["body"][0]
+        self_x = head["x"]
+        self_y = head["y"]
         print(f"Head pos: ({self_x}, {self_y})")
     except Exception as e:
-        print("Failed to get self position", e)
+        handle_error("Failed to get self position", e, data)
     try:
         try:
             get_snakes(data, board)
             print("Got impassible tiles")
         except Exception as e:
-            print("Failed to get impassible tiles", e)
+            handle_error("Failed to get impassible tiles", e, data)
 
         try:
-            get_food(data, board, self_x, self_y)
+            get_food(data, board, head)
             print("Got food tiles")
         except Exception as e:
-            print("Failed to get food tiles", e)
+            handle_error("Failed to get food tiles", e, data)
 
         try:
-            get_available_move_bonus(data, board, self_x, self_y)
+            get_available_move_bonus(data, board, head)
             print("Got available move bonus")
         except Exception as e:
-            print("Failed to get available move bonus", e)
+            handle_error("Failed to get available move bonus", e, data)
 
         best_val = WALL_POINTS
         best_move = None
@@ -64,8 +74,8 @@ def move(data):
         if DEBUG:
             try:
                 print_board(board, 5)
-            except:
-                print("Failed to print board (??)")
+            except Exception as e:
+                handle_error("Failed to print board (??)", e, data)
 
         try:
             moves_on_board = []
@@ -102,7 +112,7 @@ def move(data):
             if moves_on_board != []:
                 possible_moves = moves_on_board
         except Exception as e:
-            print("Failed to find best move", e)
+            handle_error("Failed to find best move", e, board)
 
         # print(f"Value = {best_val}")
         if best_val < -500:
@@ -110,14 +120,17 @@ def move(data):
         if choice is not None:
             choice = best_move
 
-    except:
+    except Exception as e:
         shout = "Failed to execute main move selection. Choosing randomly."
+        handle_error("Failed to execute main move selection", e, data)
     finally:
         # print(shout)
         return (choice, shout)
 
 
-def get_adjacent_in_board(board, x, y):
+def get_adjacent_in_board(board, node):
+    x = node["x"]
+    y = node["y"]
     coords = []
     if x > 0:
         coords.append({"x": x-1, "y": y})
@@ -131,7 +144,12 @@ def get_adjacent_in_board(board, x, y):
     return coords
 
 
-def pathfind(x1, y1, x2, y2):
+def pathfind(node1, node2):
+    x1 = node1["x"]
+    x2 = node2["x"]
+    y1 = node1["y"]
+    y2 = node2["y"]
+
     x_min = min(x1, x2)
     x_max = max(x1, x2)
     y_min = min(y1, y2)
@@ -144,20 +162,19 @@ def pathfind(x1, y1, x2, y2):
     return coords
 
 
-def get_food(data, board, self_x, self_y):
+def get_food(data, board, self_node):
     for food in data["board"]["food"]:
         board[food["x"]][food["y"]] += FOOD_POINTS
 
-        self_dist = distance(self_x, self_y, food["x"], food["y"])
+        self_dist = distance(self_node, food)
         snake_dist = []
         for snake in data["board"]["snakes"]:
             if snake["id"] == data["you"]["id"]:
                 continue
-            snake_dist.append(distance(snake["body"][0]["x"], snake["body"][0]["y"],
-                                       food["x"], food["y"]))
+            snake_dist.append(distance(snake["body"][0], food))
         if min(snake_dist) > self_dist:
             print("Found an easily-eatable food")
-            path = pathfind(self_x, self_y, food["x"], food["y"])
+            path = pathfind(self_node, food)
             for step in path:
                 food_path_pts = (path.index(step) *
                                  FOOD_POINTS) // len(path) + 1
@@ -176,7 +193,7 @@ def get_snakes(data, board):
             # generate aura
             try:
                 if snake["health"] >= data["you"]["health"]:
-                    for coord in get_adjacent_in_board(board, snake["body"][0]["x"], snake["body"][0]["y"]):
+                    for coord in get_adjacent_in_board(board, snake["body"][0]):
                         board[coord["x"]][coord["y"]] += HEALTHIER_ENEMY_AURA
                         # print(f"Generated healthy enemy aura on ({coord})")
             except:
@@ -193,18 +210,17 @@ def print_board(board, cell_width):
                for x in line])
 
 
-def get_available_move_bonus(data, board, self_x, self_y):
-    nodes = get_adjacent_in_board(board, self_x, self_y)
+def get_available_move_bonus(data, board, self_node):
+    nodes = get_adjacent_in_board(board, self_node)
     max_moves = -10000
     min_moves = 10000
     MOVE_POINT_DIFFERENCE = AVAILABLE_MOVE_MAX_POINTS - AVAILABLE_MOVE_MIN_POINTS
     for node in nodes:
         try:
-            moves = count_nodes(board, -10, 50, node["x"], node["y"])
+            moves = count_nodes(board, -10, 50, node)
         except Exception as e:
-            print("dfs", e)
-            print(json.dumps([board, -10, 50, node["x"], node["y"]]))
-        sum = moves
+            handle_error("dfs error", e, [board, -10, 50, node])
+            moves = -100
         # print(f"Node {node} has a path of {moves} moves.")
         if moves > max_moves:
             max_moves = moves
@@ -216,25 +232,25 @@ def get_available_move_bonus(data, board, self_x, self_y):
             move_points = 0
         else:
             move_points = AVAILABLE_MOVE_MIN_POINTS + \
-                (sum - min_moves) // (max_moves -
-                                      min_moves) * MOVE_POINT_DIFFERENCE
+                (moves - min_moves) // (max_moves -
+                                        min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
         if DEBUG:
             print(f"Assigning {move_points} move points to node {node}")
 
 
-def count_nodes(board, threshold, max_iterations, x, y):
+def count_nodes(board, threshold, max_iterations, node):
 
     # Make search space
     visitable = []
     for row in board:
         visitable.append(
             [True if item > threshold else False for item in row])
-    if not visitable[x][y]:
+    if not visitable[node["x"]][node["y"]]:
         return 0
 
     sum = 0
-    to_visit = [{"x": x, "y": y}]
+    to_visit = [node]
     # Search through the queue
     for i in range(max_iterations):
         # print(i)
@@ -242,13 +258,10 @@ def count_nodes(board, threshold, max_iterations, x, y):
         #     print(["x" if val else "." for val in row])
         if len(to_visit) < 1:
             break
-        (curr_x, curr_y) = to_visit.pop(0).values()
-        visitable[curr_x][curr_y] = False
+        curr_node = to_visit.pop(0)
+        visitable[curr_node["x"]][curr_node["y"]] = False
         sum += 1
-        try:
-            coords = get_adjacent_in_board(visitable, curr_x, curr_y)
-        except Exception as e:
-            print("adj fail", e)
+        coords = get_adjacent_in_board(visitable, curr_node)
         for coord in coords:
             if visitable[coord["x"]][coord["y"]]:
                 to_visit.append(coord)
@@ -259,9 +272,9 @@ def build_board(data):
     try:
         x = [0 for _ in range(data["board"]["width"])]
         return [list(x) for _ in range(data["board"]["height"])]
-    except:
+    except Exception as e:
         shout = "Failed to build board. Assuming 11*11"
-        print(shout)
+        handle_error(shout, e, data)
         return [list([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) for _ in range(11)]
 
 # if __name__ == "__main__":
