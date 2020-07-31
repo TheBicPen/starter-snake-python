@@ -1,5 +1,6 @@
 
 import random
+import json
 
 
 def distance(x1, y1, x2, y2):
@@ -7,9 +8,9 @@ def distance(x1, y1, x2, y2):
 
 
 FOOD_POINTS = 10
-WALL_POINTS = -10000
-ENEMY_BODY = -1000
-SELF_BODY = -9000
+WALL_POINTS = -10**6
+ENEMY_BODY = -10**4
+SELF_BODY = -9*10**5
 HEALTHIER_ENEMY_AURA = -20
 AVAILABLE_MOVE_MAX_POINTS = 20
 AVAILABLE_MOVE_MIN_POINTS = -3
@@ -36,26 +37,26 @@ def move(data):
         self_x = data["you"]["body"][0]["x"]
         self_y = data["you"]["body"][0]["y"]
         print(f"Head pos: ({self_x}, {self_y})")
-    except:
-        print("Failed to get self position")
+    except Exception as e:
+        print("Failed to get self position", e)
     try:
         try:
             get_snakes(data, board)
             print("Got impassible tiles")
-        except:
-            print("Failed to get impassible tiles")
+        except Exception as e:
+            print("Failed to get impassible tiles", e)
 
         try:
             get_food(data, board, self_x, self_y)
             print("Got food tiles")
-        except:
-            print("Failed to get food tiles")
+        except Exception as e:
+            print("Failed to get food tiles", e)
 
         try:
             get_available_move_bonus(data, board, self_x, self_y)
             print("Got available move bonus")
-        except:
-            print("Failed to get available move bonus")
+        except Exception as e:
+            print("Failed to get available move bonus", e)
 
         best_val = WALL_POINTS
         best_move = None
@@ -100,8 +101,8 @@ def move(data):
             # print(f"Possible moves: {[possible_moves]}")
             if moves_on_board != []:
                 possible_moves = moves_on_board
-        except:
-            print("Failed to find best move")
+        except Exception as e:
+            print("Failed to find best move", e)
 
         # print(f"Value = {best_val}")
         if best_val < -500:
@@ -184,63 +185,75 @@ def get_snakes(data, board):
         for coords in snake["body"]:
             board[coords["x"]][coords["y"]] += points
 
+
 def print_board(board, cell_width):
     print("Board:")
     for line in board:
-        print([str(x).ljust((cell_width + 1) // 2).rjust(cell_width) for x in line])
+        print([str(x).ljust((cell_width + 1) // 2).rjust(cell_width)
+               for x in line])
+
 
 def get_available_move_bonus(data, board, self_x, self_y):
     nodes = get_adjacent_in_board(board, self_x, self_y)
-    max_moves = -100
+    max_moves = -10000
     min_moves = 10000
     MOVE_POINT_DIFFERENCE = AVAILABLE_MOVE_MAX_POINTS - AVAILABLE_MOVE_MIN_POINTS
     for node in nodes:
-        moves = dfs(board, -10, 50, node["x"], node["y"])
-        node["sum"] = moves
+        try:
+            moves = count_nodes(board, -10, 50, node["x"], node["y"])
+        except Exception as e:
+            print("dfs", e)
+            print(json.dumps([board, -10, 50, node["x"], node["y"]]))
+        sum = moves
         # print(f"Node {node} has a path of {moves} moves.")
         if moves > max_moves:
             max_moves = moves
         if moves < min_moves:
             min_moves = moves
-    # print(f"Max moves: {max_moves}, Min moves: {min_moves}")    
+    # print(f"Max moves: {max_moves}, Min moves: {min_moves}")
     for node in nodes:
         if min_moves == max_moves:
             move_points = 0
         else:
-            move_points = AVAILABLE_MOVE_MIN_POINTS + (node["sum"] - min_moves) // (max_moves - min_moves) * MOVE_POINT_DIFFERENCE
+            move_points = AVAILABLE_MOVE_MIN_POINTS + \
+                (sum - min_moves) // (max_moves -
+                                      min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
         if DEBUG:
             print(f"Assigning {move_points} move points to node {node}")
 
-def dfs(board, threshold, max_iterations, x, y):
 
-    node = {"x":x, "y":y, "sum":0}
+def count_nodes(board, threshold, max_iterations, x, y):
+
+    # Make search space
     visitable = []
     for row in board:
         visitable.append(
             [True if item > threshold else False for item in row])
-    # print(visitable)
     if not visitable[x][y]:
         return 0
-    to_visit = [node]
 
+    sum = 0
+    to_visit = [{"x": x, "y": y}]
+    # Search through the queue
     for i in range(max_iterations):
         # print(i)
         # for row in visitable:
         #     print(["x" if val else "." for val in row])
         if len(to_visit) < 1:
             break
-        coords = get_adjacent_in_board(
-            visitable, to_visit[0]["x"], to_visit[0]["y"])
-        to_visit.pop(0)
+        (curr_x, curr_y) = to_visit.pop(0).values()
+        visitable[curr_x][curr_y] = False
+        sum += 1
+        try:
+            coords = get_adjacent_in_board(visitable, curr_x, curr_y)
+        except Exception as e:
+            print("adj fail", e)
         for coord in coords:
             if visitable[coord["x"]][coord["y"]]:
-                visitable[coord["x"]][coord["y"]] = False
-                node["sum"] += 1
                 to_visit.append(coord)
+    return sum
 
-    return node["sum"]
-    
 
 def build_board(data):
     try:
