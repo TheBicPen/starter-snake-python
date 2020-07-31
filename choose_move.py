@@ -15,7 +15,7 @@ HEALTHIER_ENEMY_AURA = -20
 AVAILABLE_MOVE_MAX_POINTS = 20
 AVAILABLE_MOVE_MIN_POINTS = -3
 
-DEBUG = False
+DEBUG = True
 DUMP_ON_ERROR = False
 
 
@@ -218,28 +218,35 @@ def get_available_move_bonus(data, board, self_node):
     max_moves = -10000
     min_moves = 10000
     MOVE_POINT_DIFFERENCE = AVAILABLE_MOVE_MAX_POINTS - AVAILABLE_MOVE_MIN_POINTS
-    for node in nodes:
+    node_move_bonuses = [{"node": node, "move_bonus": -100} for node in nodes]
+    for node_and_move_bonus in node_move_bonuses:
+        node=node_and_move_bonus["node"]
         try:
             moves = count_nodes(board, -10, 50, node)
         except Exception as e:
             handle_error("dfs error", e, [board, -10, 50, node])
             moves = -100
-        print(f"Node {node} has a path of {moves} moves.")
+        node_and_move_bonus["move_bonus"] = moves
+        if DEBUG:
+            print(f"Node {node} has a path of {moves} moves.")
+
         if moves > max_moves:
             max_moves = moves
         if moves < min_moves:
             min_moves = moves
-    print(f"Max moves: {max_moves}, Min moves: {min_moves}")
-    for node in nodes:
+    if DEBUG:
+        print(f"Max moves: {max_moves}, Min moves: {min_moves}")
+    for node_and_move_bonus in node_move_bonuses:
+        node = node_and_move_bonus["node"]
         if min_moves == max_moves:
             move_points = 0
         else:
             move_points = AVAILABLE_MOVE_MIN_POINTS + \
-                (moves - min_moves) // (max_moves -
+                (node_and_move_bonus["move_bonus"] - min_moves) // (max_moves -
                                         min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
-        # if DEBUG:
-        print(f"Assigning {move_points} move points to node {node}")
+        if DEBUG:
+            print(f"Assigning {move_points} move points to node {node}")
 
 
 def count_nodes(board, threshold, max_iterations, node):
@@ -282,7 +289,7 @@ def build_board(data):
 
 
 # if __name__ == "__main__":
-    
+
 #     count_nodes(*[[[-900000, 0, 0, 0, 0, 0, 0], [-900000, 0, 0, 0, 0, 0, 10], [-900000, 0, 0, -20, 0, 0, 0], [-900000, 0, -20, -10000, -20, 0, 10], [-900000,
 
 #     print(dfs([[0, -1, 0, 0, 0, 0, 0, 0, 10, 0, 0],
