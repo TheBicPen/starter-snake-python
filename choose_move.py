@@ -16,7 +16,7 @@ AVAILABLE_MOVE_MAX_POINTS = 20
 AVAILABLE_MOVE_MIN_POINTS = -3
 
 DEBUG = False
-DUMP_ON_ERROR = True
+DUMP_ON_ERROR = False
 
 
 def handle_error(error_name: str, exception: Exception, data=None):
@@ -120,6 +120,9 @@ def move(data):
         if choice is not None:
             choice = best_move
 
+        if DEBUG:
+            print_board(board, 6)
+
     except Exception as e:
         shout = "Failed to execute main move selection. Choosing randomly."
         handle_error("Failed to execute main move selection", e, data)
@@ -138,7 +141,7 @@ def get_adjacent_in_board(board, node):
         coords.append({"x": x+1, "y": y})
     if y > 0:
         coords.append({"x": x, "y": y-1})
-    if y <= len(board)-1:
+    if y < len(board)-1:
         coords.append({"x": x, "y": y+1})
     # print(f"adjacent tiles: {coords}")
     return coords
@@ -277,7 +280,11 @@ def build_board(data):
         handle_error(shout, e, data)
         return [list([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) for _ in range(11)]
 
+
 # if __name__ == "__main__":
+    
+#     count_nodes(*[[[-900000, 0, 0, 0, 0, 0, 0], [-900000, 0, 0, 0, 0, 0, 10], [-900000, 0, 0, -20, 0, 0, 0], [-900000, 0, -20, -10000, -20, 0, 10], [-900000,
+
 #     print(dfs([[0, -1, 0, 0, 0, 0, 0, 0, 10, 0, 0],
 # [0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 # [0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
