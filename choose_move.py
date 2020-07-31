@@ -12,6 +12,7 @@ WALL_POINTS = -10**6
 ENEMY_BODY = -10**4
 SELF_BODY = -9*10**5
 HEALTHIER_ENEMY_AURA = -30
+HEALTHIER_ENEMY_AURA2 = -10
 AVAILABLE_MOVE_MAX_POINTS = 20
 AVAILABLE_MOVE_MIN_POINTS = -5
 BFS_DEPTH = 80
@@ -49,7 +50,7 @@ def move(data):
         self_y = head["y"]
         print(f"Head pos: ({self_x}, {self_y})")
     except Exception as e:
-        handle_error("Failed to get self position", e, data)
+        handle_error("Failed to get own position", e, data)
     try:
         try:
             get_snakes(data, board)
@@ -187,7 +188,7 @@ def get_food(data, board, self_node):
                     print(f"Food path: ({step}), {food_path_pts}")
 
 
-def get_snakes(data, board):
+def get_snakes(data, board, layer2=True):
     for snake in data["board"]["snakes"]:
         if snake["id"] == data["you"]["id"]:
             points = SELF_BODY
@@ -200,6 +201,9 @@ def get_snakes(data, board):
                     for coord in get_adjacent_in_board(board, snake["body"][0]):
                         board[coord["x"]][coord["y"]] += HEALTHIER_ENEMY_AURA
                         # print(f"Generated healthy enemy aura on ({coord})")
+                        for coord2 in get_adjacent_in_board(board, coord):
+                            board[coord2["x"]][coord2["y"]] += HEALTHIER_ENEMY_AURA2
+
             except:
                 print("Failed to generate aura around healthier enemy snake")
 
@@ -221,7 +225,7 @@ def get_available_move_bonus(data, board, self_node):
     MOVE_POINT_DIFFERENCE = AVAILABLE_MOVE_MAX_POINTS - AVAILABLE_MOVE_MIN_POINTS
     node_move_bonuses = [{"node": node, "move_bonus": -100} for node in nodes]
     for node_and_move_bonus in node_move_bonuses:
-        node=node_and_move_bonus["node"]
+        node = node_and_move_bonus["node"]
         try:
             moves = count_nodes(board, -10, BFS_DEPTH, node)
         except Exception as e:
@@ -244,7 +248,7 @@ def get_available_move_bonus(data, board, self_node):
         else:
             move_points = AVAILABLE_MOVE_MIN_POINTS + \
                 (node_and_move_bonus["move_bonus"] - min_moves) // (max_moves -
-                                        min_moves) * MOVE_POINT_DIFFERENCE
+                                                                    min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
         if DEBUG:
             print(f"Assigning {move_points} move points to node {node}")
