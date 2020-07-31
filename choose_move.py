@@ -238,8 +238,8 @@ def get_available_move_bonus(data, board, self_node):
                 (moves - min_moves) // (max_moves -
                                         min_moves) * MOVE_POINT_DIFFERENCE
         board[node["x"]][node["y"]] += move_points
-        if DEBUG:
-            print(f"Assigning {move_points} move points to node {node}")
+        # if DEBUG:
+        print(f"Assigning {move_points} move points to node {node}")
 
 
 def count_nodes(board, threshold, max_iterations, node):
