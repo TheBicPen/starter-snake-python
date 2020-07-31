@@ -227,8 +227,8 @@ def get_available_move_bonus(data, board, self_node):
             handle_error("dfs error", e, [board, -10, 50, node])
             moves = -100
         node_and_move_bonus["move_bonus"] = moves
-        if DEBUG:
-            print(f"Node {node} has a path of {moves} moves.")
+        # if DEBUG:
+        print(f"Node {node} has a path of {moves} moves.")
 
         if moves > max_moves:
             max_moves = moves
