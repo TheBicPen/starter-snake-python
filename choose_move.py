@@ -203,6 +203,7 @@ def get_snakes(data, board, layer2=True):
                         # print(f"Generated healthy enemy aura on ({coord})")
                         for coord2 in get_adjacent_in_board(board, coord):
                             board[coord2["x"]][coord2["y"]] += HEALTHIER_ENEMY_AURA2
+                            print("enemy 2 tiles away:", coord2["x"], coord2["y"])
 
             except:
                 print("Failed to generate aura around healthier enemy snake")
