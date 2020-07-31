@@ -11,6 +11,7 @@ FOOD_POINTS = 10
 WALL_POINTS = -10**6
 ENEMY_BODY = -10**4
 SELF_BODY = -9*10**5
+ANY_TAIL = -2*10**5
 HEALTHIER_ENEMY_AURA = -30
 HEALTHIER_ENEMY_AURA2 = -10
 AVAILABLE_MOVE_MAX_POINTS = 20
@@ -208,8 +209,11 @@ def get_snakes(data, board, layer2=True):
             except:
                 print("Failed to generate aura around healthier enemy snake")
 
-        for coords in snake["body"]:
+        # assume snake is not empty
+        for coords in snake["body"][:-1]:
             board[coords["x"]][coords["y"]] += points
+        tail_coords = snake["body"][-1]
+        board[tail_coords["x"]][tail_coords["y"]] += ANY_TAIL
 
 
 def print_board(board, cell_width):
