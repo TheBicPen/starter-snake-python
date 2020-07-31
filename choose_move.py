@@ -102,7 +102,7 @@ def move(data):
                 if val > best_val:
                     best_val = val
                     best_move = "up"
-            if self_y <= len(board)-1:
+            if self_y < len(board)-1:
                 moves_on_board.append("down")
                 val = board[self_x][self_y+1]
                 print(f"Down val: {val}")
