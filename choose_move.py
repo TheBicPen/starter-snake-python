@@ -11,7 +11,7 @@ FOOD_POINTS = 10
 WALL_POINTS = -10**6
 ENEMY_BODY = -10**4
 SELF_BODY = -9*10**5
-ANY_TAIL = -2*10**5
+ENEMY_TAIL = -2*10**5
 HEALTHIER_ENEMY_AURA = -30
 HEALTHIER_ENEMY_AURA2 = -10
 AVAILABLE_MOVE_MAX_POINTS = 20
@@ -21,6 +21,9 @@ BFS_DEPTH = 80
 DEBUG = False
 DUMP_ON_ERROR = False
 
+
+tail_will_grow = False
+health_last_turn = 0
 
 def handle_error(error_name: str, exception: Exception, data=None):
     print("An exception occured: ", error_name, exception)
@@ -189,12 +192,29 @@ def get_food(data, board, self_node):
                     print(f"Food path: ({step}), {food_path_pts}")
 
 
+def process_self(data, board, snake):
+    global health_last_turn
+    if data["you"]["health"] > health_last_turn:
+        tail_will_grow = True
+    else:
+        tail_will_grow = False
+    health_last_turn = data["you"]["health"]
+
+    for coords in snake["body"][:-1]:
+        board[coords["x"]][coords["y"]] += SELF_BODY
+    tail_coords = snake["body"][-1]
+    board[tail_coords["x"]][tail_coords["y"]] += SELF_BODY if tail_will_grow else 0
+
 def get_snakes(data, board, layer2=True):
     for snake in data["board"]["snakes"]:
         if snake["id"] == data["you"]["id"]:
-            points = SELF_BODY
+            process_self(data, board, snake)
         else:
-            points = ENEMY_BODY
+            # assume snake is not empty
+            for coords in snake["body"][:-1]:
+                board[coords["x"]][coords["y"]] += ENEMY_BODY
+            tail_coords = snake["body"][-1]
+            board[tail_coords["x"]][tail_coords["y"]] += ENEMY_TAIL
 
             # generate aura
             try:
@@ -204,16 +224,11 @@ def get_snakes(data, board, layer2=True):
                         # print(f"Generated healthy enemy aura on ({coord})")
                         for coord2 in get_adjacent_in_board(board, coord):
                             board[coord2["x"]][coord2["y"]] += HEALTHIER_ENEMY_AURA2
-                            print("enemy 2 tiles away:", coord2["x"], coord2["y"])
+                            # print("enemy 2 tiles away:", coord2["x"], coord2["y"])
 
             except:
                 print("Failed to generate aura around healthier enemy snake")
 
-        # assume snake is not empty
-        for coords in snake["body"][:-1]:
-            board[coords["x"]][coords["y"]] += points
-        tail_coords = snake["body"][-1]
-        board[tail_coords["x"]][tail_coords["y"]] += ANY_TAIL
 
 
 def print_board(board, cell_width):
